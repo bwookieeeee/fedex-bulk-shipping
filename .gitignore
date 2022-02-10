@@ -1,4 +1,4 @@
 node_modules/
 labels/
 *.csv
-config.json
+config.js
