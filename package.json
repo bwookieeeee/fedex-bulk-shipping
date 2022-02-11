@@ -1,20 +1,17 @@
 {
   "name": "fedex-dropship",
-  "version": "1.0.0",
+  "version": "0.9.4",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
+  "scripts": {},
+  "author": "Brooke Morrison",
+  "license": "UNLICENSED",
   "dependencies": {
     "argparse": "^2.0.1",
     "axios": "^0.25.0",
     "cli-progress": "^3.10.0",
     "csv": "^6.0.5",
     "csv-parse": "^5.0.4",
-    "csv-stringify": "^6.0.5",
     "node-csv": "^0.1.2",
     "prompt": "^1.2.1",
     "qs": "^6.10.3"

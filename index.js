@@ -2,7 +2,7 @@ const { parse } = require("csv-parse/sync");
 const fs = require("fs");
 const config = require("./config");
 const qs = require("qs");
-const { default: axios } = require("axios");
+const { axios } = require("axios");
 const progress = require("cli-progress");
 const { ArgumentParser } = require("argparse");
 
@@ -21,9 +21,9 @@ const getFile = file => {
 const run = async () => {
   console.log(`
 ================================================================================
-BULK SHIPPING FOR FEDEX GROUND SERVICES
+BULK SHIPPING FOR FEDEX
 
-Create FedEx Ground shipping labels in bulk. v0.9.3 created by Brooke
+Create FedEx shipping labels in bulk. v0.9.4 created by Brooke
 Morrison on behalf of Relay Resources. DO NOT DISTRIBUTE.
 
 Imports a CSV file and creates a shipping label for each entry. Saves a new CSV
