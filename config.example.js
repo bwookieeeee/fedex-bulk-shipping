@@ -2,6 +2,7 @@ module.exports = {
   apiKey: null,
   apiSecret: undefined,
   shippingAccount: undefined,
+  verifyAddresses: true,
   shipper: {
     contact: {
       personName: "JERRY ROUT",
