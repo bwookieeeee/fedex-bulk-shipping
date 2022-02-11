@@ -5,6 +5,7 @@ const qs = require("qs");
 const { axios } = require("axios");
 const progress = require("cli-progress");
 const { ArgumentParser } = require("argparse");
+const { version } = require("./package.json")
 
 // let accessToken;
 // const unshippedFile = fs.readFileSync("unshipped-formatted.csv");
@@ -23,12 +24,12 @@ const run = async () => {
 ================================================================================
 BULK SHIPPING FOR FEDEX
 
-Create FedEx shipping labels in bulk. v0.9.4 created by Brooke
+Create FedEx shipping labels in bulk. v${version} created by Brooke
 Morrison on behalf of Relay Resources. DO NOT DISTRIBUTE.
 
 Imports a CSV file and creates a shipping label for each entry. Saves a new CSV
-which can be imported into Excel with tracking numbers, and notes/warnings where
-applicable. 
+which can be imported into Excel with tracking numbers, and basic identifying
+information.
 
 Program appearance and behavior subject to change.
 
