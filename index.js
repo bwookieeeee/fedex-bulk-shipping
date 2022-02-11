@@ -1,17 +1,22 @@
 const { parse } = require("csv-parse/sync");
-var stringify = require("csv-stringify");
 const fs = require("fs");
 const config = require("./config");
 const qs = require("qs");
 const { default: axios } = require("axios");
 const progress = require("cli-progress");
+const { ArgumentParser } = require("argparse");
 
 // let accessToken;
-const unshippedFile = fs.readFileSync("unshipped-formatted.csv");
-const unshippedOrders = parse(unshippedFile, { columns: true });
+// const unshippedFile = fs.readFileSync("unshipped-formatted.csv");
+// const unshippedOrders = parse(unshippedFile, { columns: true });
 let shippedOrders = [];
 let failedOrders = [];
 const bar = new progress.SingleBar();
+
+const getFile = file => {
+  const f = fs.readFileSync(file);
+  return parse(f, {columns: true})
+};
 
 const run = async () => {
   console.log(`
@@ -31,6 +36,24 @@ Does not actually create shipments, using FedEx sandbox API. No purchases are
 being made.
 ================================================================================
 `);
+
+  const parser = new ArgumentParser({
+    description: "Fedex Bulk Shipping Label Creation Tool"
+  });
+
+  parser.add_argument("-i", "--input", {
+    help: "fully qualified path to input CSV",
+    default: "unshipped.csv"
+  });
+  parser.add_argument("-o", "--output", {
+    help: "Fully qualified path to output CSV",
+    default: "completedOrders.csv"
+  });
+  const args = parser.parse_args();
+
+  const unshippedOrders = getFile(args.input);
+
+  // console.dir(args);
 
   bar.start(unshippedOrders.length, 0);
   const accessToken = await authenticate();
@@ -63,7 +86,7 @@ being made.
       !order.packagingType ||
       !order.weight ||
       !order.len ||
-      !oder.width ||
+      !order.width ||
       !order.height
     ) {
       bar.stop();
@@ -178,12 +201,12 @@ being made.
   }
   bar.stop();
   fs.writeFileSync(
-    "completedOrders.csv",
+    args.output,
     "billingAccount,orderNum,company,firstName,lastName,address1,address2,city,state,zip,phone,trackingNumber"
   );
   for (order of shippedOrders) {
     fs.appendFileSync(
-      "completedOrders.csv",
+      args.ouptput,
       `\n${order.billingAccount},${order.orderNum},${order.company},${order.firstName},${order.lastName},${order.address1},${order.address2},${order.city},${order.state},${order.zip},${order.phone},${order.trackingNumber}`
     );
   }
