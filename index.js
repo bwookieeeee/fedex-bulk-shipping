@@ -47,6 +47,40 @@ being made.
       accessToken
     );
     if (order.phone.length !== 10) order.phone = "5032611266";
+
+    // Check for missing keys, quit when mandatory key not found, otherwise set
+    // key value to ""
+    // Fixes #1
+
+    if (
+      !order.billingAccount ||
+      !order.address1 ||
+      !order.city ||
+      !order.state ||
+      !order.country ||
+      !order.phone ||
+      !order.serviceType ||
+      !order.packagingType ||
+      !order.weight ||
+      !order.len ||
+      !oder.width ||
+      !order.height
+    ) {
+      bar.stop();
+      console.error(
+        "One or more mandatory keys were not detected. Fix the issue in Excel and try again."
+      );
+      process.exit(1);
+    }
+
+    if (!order.orderNum) order.orderNum = "";
+    if (!order.company) order.company = "";
+    if (!order.firstName) order.firstName = "";
+    if (!order.lastName) order.lastName = "";
+    if (!order.address2) order.address2 = "";
+    if (!order.zip) order.zip = "";
+    if (!order.shipDate) order.shipDate = "";
+
     const payload = {
       labelResponseOptions: "LABEL",
       requestedShipment: {
@@ -119,7 +153,7 @@ being made.
         value: config.shippingAcct
       }
     };
-    
+
     // console.log(`Shipping ${order.orderNum}...`);
     const shippedOrder = await createShipment(payload, accessToken);
     if (shippedOrder !== -1) {
