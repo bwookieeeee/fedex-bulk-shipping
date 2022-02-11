@@ -148,7 +148,7 @@ being made.
         },
         labelSpecification: {
           imageType: "PDF",
-          labelStockType: "PAPER_4X6"
+          labelStockType: config.labelStockType
         },
         requestedPackageLineItems: [
           {
