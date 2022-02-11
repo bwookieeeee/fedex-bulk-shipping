@@ -76,5 +76,5 @@ Columns listed here will only accept certain values:
 ---
 
 _Created by [Brooke Morrison](mailto:bmorrison@relayresources.org) on behalf of
-[Relay Resources](httsp://relayresources.org) ©️2022 Brooke Morrison, Relay
+[Relay Resources](httsp://relayresources.org) ©2022 Brooke Morrison, Relay
 Resources - All Rights Reserved._
