@@ -5,7 +5,7 @@ const qs = require("qs");
 const { axios } = require("axios");
 const progress = require("cli-progress");
 const { ArgumentParser } = require("argparse");
-const { version } = require("./package.json")
+const { version } = require("./package.json");
 
 // let accessToken;
 // const unshippedFile = fs.readFileSync("unshipped-formatted.csv");
@@ -16,7 +16,7 @@ const bar = new progress.SingleBar();
 
 const getFile = file => {
   const f = fs.readFileSync(file);
-  return parse(f, {columns: true})
+  return parse(f, { columns: true });
 };
 
 const run = async () => {
@@ -60,16 +60,27 @@ being made.
   const accessToken = await authenticate();
   for (order of unshippedOrders) {
     // Create the payload
-    const address = await verifyAddress(
-      {
-        streetLines: [order.address1, order.address2],
+    let address;
+    if (config.verifyAddresses) {
+      address = await verifyAddress(
+        {
+          streetLines: [order.address1, order.address2],
+          city: order.city,
+          stateOrProvinceCode: order.state,
+          postalCode: order.zip,
+          countryCode: order.country
+        },
+        accessToken
+      );
+    } else {
+      address = {
+        streetLines: [ order.address1, order.address2],
         city: order.city,
         stateOrProvinceCode: order.state,
         postalCode: order.zip,
         countryCode: order.country
-      },
-      accessToken
-    );
+      }
+    }
     if (order.phone.length !== 10) order.phone = "5032611266";
 
     // Check for missing keys, quit when mandatory key not found, otherwise set
