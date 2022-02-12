@@ -35,6 +35,13 @@ feature.
 Once the script is complete, a CSV file called `completedOrders.csv` is created
 in the current working directory.
 
+### Optional Arguments
+
+| Argument | Desc | Example |
+| -------- | ---- | ------- |
+| `-i`, `--input` | Path to the CSV of unshipped orders | `-i %USERPROFILE\Documents\bambu-052800.csv` |
+| `-o`, `--output` | Path to the CSV of shipped orders | `-o ..\lindemann-100020-shipped.csv` |
+
 ### Example
 
 A CSV file with information including but not limited to:
