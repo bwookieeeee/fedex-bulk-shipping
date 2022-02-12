@@ -2,7 +2,7 @@ const { parse } = require("csv-parse/sync");
 const fs = require("fs");
 const config = require("./config");
 const qs = require("qs");
-const { axios } = require("axios");
+const { default: axios } = require("axios");
 const progress = require("cli-progress");
 const { ArgumentParser } = require("argparse");
 const { version } = require("./package.json");
@@ -205,7 +205,7 @@ being made.
   );
   for (order of shippedOrders) {
     fs.appendFileSync(
-      args.ouptput,
+      args.output,
       `\n${order.billingAccount},${order.orderNum},${order.company},${order.firstName},${order.lastName},${order.address1},${order.address2},${order.city},${order.state},${order.zip},${order.phone},${order.trackingNumber}`
     );
   }
