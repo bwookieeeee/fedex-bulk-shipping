@@ -7,18 +7,26 @@ const progress = require("cli-progress");
 const { ArgumentParser } = require("argparse");
 const { version } = require("./package.json");
 
-// let accessToken;
-// const unshippedFile = fs.readFileSync("unshipped-formatted.csv");
-// const unshippedOrders = parse(unshippedFile, { columns: true });
 let shippedOrders = [];
 let failedOrders = [];
 const bar = new progress.SingleBar();
 
-const getFile = file => {
+/**
+ * Read input file and return array of objects containing each order
+ * @param {string} file path to input file
+ * @returns {Object[]} parsed CSV file of unshipped orders
+ */
+const parseIncomingFile = file => {
   const f = fs.readFileSync(file);
   return parse(f, { columns: true });
 };
 
+/**
+ * Main function. Parses command line arguments, calls the authenticator, and
+ * iterates through each order, (optionally) verifying each address and writing
+ * completed orders to an output CSV. Will print failed orders when finished.
+ * @async
+ */
 const run = async () => {
   console.log(`
 ================================================================================
@@ -38,6 +46,7 @@ being made.
 ================================================================================
 `);
 
+  // Parse command line arguments
   const parser = new ArgumentParser({
     description: "Fedex Bulk Shipping Label Creation Tool"
   });
@@ -52,16 +61,20 @@ being made.
   });
   const args = parser.parse_args();
 
-  const unshippedOrders = getFile(args.input);
-
-  // console.dir(args);
+  // parse and objectify incoming orders
+  const unshippedOrders = parseIncomingFile(args.input);
 
   bar.start(unshippedOrders.length, 0);
+
+  // Authentication lasts for 1 hour
   const accessToken = await authenticate();
+
+  // Iterate through each order
   for (order of unshippedOrders) {
     // Create the payload
     let address;
     if (config.verifyAddresses) {
+      // Address validation is slow, and may not work in prod
       address = await verifyAddress(
         {
           streetLines: [order.address1, order.address2],
@@ -74,19 +87,19 @@ being made.
       );
     } else {
       address = {
-        streetLines: [ order.address1, order.address2],
+        streetLines: [order.address1, order.address2],
         city: order.city,
         stateOrProvinceCode: order.state,
         postalCode: order.zip,
         countryCode: order.country
-      }
+      };
     }
+
+    // Order will fail if phone number is not exactly 10 digits.
     if (order.phone.length !== 10) order.phone = "5032611266";
 
     // Check for missing keys, quit when mandatory key not found, otherwise set
     // key value to ""
-    // Fixes #1
-
     if (
       !order.billingAccount ||
       !order.address1 ||
@@ -116,6 +129,7 @@ being made.
     if (!order.zip) order.zip = "";
     if (!order.shipDate) order.shipDate = "";
 
+    // Generate the payload
     const payload = {
       labelResponseOptions: "LABEL",
       requestedShipment: {
@@ -176,8 +190,10 @@ being made.
       }
     };
 
-    // console.log(`Shipping ${order.orderNum}...`);
+    // Attempt to generate a shipping label
     const shippedOrder = await createShipment(payload, accessToken);
+
+    // A failed shipped order will return -1 for a tracking number
     if (shippedOrder !== -1) {
       shippedOrders.push({
         billingAccount: order.billingAccount,
@@ -199,6 +215,8 @@ being made.
     bar.increment();
   }
   bar.stop();
+
+  // Generate the output CSV of shipped orders
   fs.writeFileSync(
     args.output,
     "billingAccount,orderNum,company,firstName,lastName,address1,address2,city,state,zip,phone,trackingNumber"
@@ -209,10 +227,23 @@ being made.
       `\n${order.billingAccount},${order.orderNum},${order.company},${order.firstName},${order.lastName},${order.address1},${order.address2},${order.city},${order.state},${order.zip},${order.phone},${order.trackingNumber}`
     );
   }
+
+  // Report failed orders if any. If none, print "None"
   const failedOrdersStr = failedOrders.length > 0 ? failedOrders : "None";
   console.log("\nOrders complete, failed orders:\n", failedOrdersStr);
 };
 
+/**
+ * Attempt to generate a shipping label. If successful, saves the label as
+ * labels/${trackingNum}.pdf and returns the tracking number. In the event of a
+ * failure, no label is saved, and no tracking number is generated. Print the
+ * reason why it failed to console, and return -1.
+ *
+ * @param {JSON} payload data to send to fedex
+ * @param {jwt} accessToken authentication token
+ * @returns {string} tracking number for successful shipment, -1 if failed.
+ * @async
+ */
 const createShipment = async (payload, accessToken) => {
   try {
     const res = await axios.post(
@@ -227,9 +258,11 @@ const createShipment = async (payload, accessToken) => {
     );
 
     if (res.status === 200) {
+      // Tracking number
       const trackingNum =
         res.data.output.transactionShipments[0].pieceResponses[0]
           .trackingNumber;
+      // Shipping label encoded as a base64 buffer
       const labelEncoded =
         res.data.output.transactionShipments[0].pieceResponses[0]
           .packageDocuments[0].encodedLabel;
@@ -240,7 +273,6 @@ const createShipment = async (payload, accessToken) => {
           if (err) console.error;
         }
       );
-      // console.log("Done!")
       return trackingNum;
     }
   } catch (e) {
@@ -257,6 +289,16 @@ const createShipment = async (payload, accessToken) => {
   }
 };
 
+/**
+ * Attempt to correct any bad addresses. If a failure occurs, returns the
+ * uncorrected incoming address. Expect a failing address to not make a new
+ * label, and will require manual intervention.
+ *
+ * @param {JSON} payload address to validate, formatted to FedEx's preference
+ * @param {jwt} accessToken authentication token
+ * @returns corrected address if 200, payload otherwise
+ * @async
+ */
 const verifyAddress = async (payload, accessToken) => {
   try {
     const res = await axios.post(
@@ -293,11 +335,17 @@ const verifyAddress = async (payload, accessToken) => {
       };
     }
   } catch (e) {
-    // console.log(e.response.data);
     return payload;
   }
 };
 
+/**
+ * Authenticate against FedEx's OAuth API. The returning jwt is required in all
+ * API calls that use Authentication/Bearer headers.
+ * 
+ * @returns {jwt} authentication token
+ * @async
+ */
 const authenticate = async () => {
   const res = await axios({
     method: "post",
