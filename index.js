@@ -43,11 +43,11 @@ being made.
   });
 
   parser.add_argument("-i", "--input", {
-    help: "fully qualified path to input CSV",
+    help: "path to input CSV",
     default: "unshipped.csv"
   });
   parser.add_argument("-o", "--output", {
-    help: "Fully qualified path to output CSV",
+    help: "path to output CSV",
     default: "completedOrders.csv"
   });
   const args = parser.parse_args();
