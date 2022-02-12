@@ -39,7 +39,7 @@ in the current working directory.
 
 | Argument | Desc | Example |
 | -------- | ---- | ------- |
-| `-i`, `--input` | Path to the CSV of unshipped orders | `-i %USERPROFILE\Documents\bambu-052800.csv` |
+| `-i`, `--input` | Path to the CSV of unshipped orders | `-i %USERPROFILE%\Documents\bambu-052800.csv` |
 | `-o`, `--output` | Path to the CSV of shipped orders | `-o ..\lindemann-100020-shipped.csv` |
 
 ### Example
