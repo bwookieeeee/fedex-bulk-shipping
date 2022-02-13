@@ -1,10 +1,11 @@
-const { parse } = require("csv-parse/sync");
-const fs = require("fs");
-const config = require("./config");
-const qs = require("qs");
+const { ArgumentParser } = require("argparse");
 const { default: axios } = require("axios");
 const progress = require("cli-progress");
-const { ArgumentParser } = require("argparse");
+const { parse } = require("csv-parse/sync");
+const fs = require("fs");
+const qs = require("qs");
+
+const config = require("./config");
 const { version } = require("./package.json");
 
 let shippedOrders = [];
@@ -13,6 +14,7 @@ const bar = new progress.SingleBar();
 
 /**
  * Read input file and return array of objects containing each order
+ * 
  * @param {string} file path to input file
  * @returns {Object[]} parsed CSV file of unshipped orders
  */
@@ -25,6 +27,7 @@ const parseIncomingFile = file => {
  * Main function. Parses command line arguments, calls the authenticator, and
  * iterates through each order, (optionally) verifying each address and writing
  * completed orders to an output CSV. Will print failed orders when finished.
+ * 
  * @async
  */
 const run = async () => {
@@ -342,7 +345,7 @@ const verifyAddress = async (payload, accessToken) => {
 /**
  * Authenticate against FedEx's OAuth API. The returning jwt is required in all
  * API calls that use Authentication/Bearer headers.
- * 
+ *
  * @returns {jwt} authentication token
  * @async
  */
