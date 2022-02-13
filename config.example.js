@@ -3,7 +3,7 @@ module.exports = {
   apiSecret: undefined,
   shippingAccount: undefined,
   verifyAddresses: true,
-  labelStockType: "PAPER_4X6",
+  labelStockType: "STOCK_4X6",
   shipper: {
     contact: {
       personName: "JERRY ROUT",
